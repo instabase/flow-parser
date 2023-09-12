@@ -1,0 +1,592 @@
+<!-- 
+MIT License
+
+Copyright (c) 2023 Instabase
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="https://livejs.com/live.js"></script>
+    <title>Instabase Parser - {{job.jobid}}</title>
+    <link href="data:image/x-icon;base64,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" rel="icon" type="image/x-icon" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-1.13.6/b-2.4.2/b-html5-2.4.2/r-2.5.0/datatables.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+<style>
+      .box {
+        height: 40vh;
+        overflow-y: scroll;
+      }
+</style>
+</head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <span class="app-brand-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 64 64" data-testid="pollen-app-icon-ib_instabase" class="sc-jrcTuL hlENrR"><path fill="#8362AC" d="M28.288 35.235H6V58h22.288z"></path><path fill="#EA4622" d="M17.143 28.765c6.152 0 11.14-5.096 11.14-11.383C28.283 11.097 23.295 6 17.143 6s-11.14 5.096-11.14 11.383c0 6.286 4.988 11.382 11.14 11.382Z"></path><path fill="#32A980" d="M41.765 58h-6.048V35.235H46.86c2.955 0 5.788 1.2 7.877 3.334A11.51 11.51 0 0 1 58 46.617a11.51 11.51 0 0 1-3.263 8.05A11.02 11.02 0 0 1 46.86 58h-5.095Z"></path><path fill="#EDA91E" d="M41.765 28.765h-6.048V6H46.86c1.463 0 2.912.294 4.263.866 1.352.572 2.58 1.41 3.614 2.468a11.402 11.402 0 0 1 2.415 3.693 11.597 11.597 0 0 1 0 8.711 11.402 11.402 0 0 1-2.415 3.693 11.127 11.127 0 0 1-3.614 2.468c-1.351.572-2.8.866-4.263.866h-5.095Z"></path></svg>
+              </span>
+          <a class="navbar-brand" href="#">Instabase</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link">Job Id: {{job.jobid}}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link">Time: {{job.start_time}} - {{job.end_time}}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link">{{job.org}} - {{job.project}}</a>
+              </li>
+            </ul>
+            <form class="d-flex" role="search">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+      <div class="container-fluid">
+        <div class="row p-3">
+            <div class="col-lg-2 col-md-6 col-6 mb-4">
+                <div class="card">
+                  <div class="card-body">
+                    <span class="fw-semibold d-block mb-1">Processing Time</span>
+                    <h3 class="text-success fw-semibold">{{job.elapsed_time}}s</h3>
+                  </div>
+                </div>
+              </div>
+            <div class="col-lg-2 col-md-6 col-6 mb-4">
+                <div class="card">
+                  <div class="card-body">
+                    <span class="fw-semibold d-block mb-1">Files Processed</span>
+                    <h3 class="text-success fw-semibold">{{job.filenames|length}}</h3>
+                  </div>
+                </div>
+              </div>
+            <div class="col-lg-2 col-md-6 col-6 mb-4">
+                <div class="card">
+                  <div class="card-body">
+                    <span class="fw-semibold d-block mb-1">Pages Processed</span>
+                    <h3 class="text-success fw-semibold">{{job.ocr_count}}</h3>
+                  </div>
+                </div>
+              </div>
+            <div class="col-lg-2 col-md-6 col-6 mb-4">
+                <div class="card">
+                  <div class="card-body">
+                    <span class="fw-semibold d-block mb-1">Average OCR</span>
+                    <h3 class="text-success fw-semibold">{{job.ocr_average}}s</h3>
+                  </div>
+                </div>
+              </div>
+
+            <div class="col-lg-2 col-md-6 col-6 mb-4">
+                <div class="card">
+                  <div class="card-body">
+                    <span class="fw-semibold d-block mb-1">Empty</span>
+                    <h3 class="text-success fw-semibold">1234</h3>
+                  </div>
+                </div>
+              </div>
+            <div class="col-lg-2 col-md-6 col-6 mb-4">
+                <div class="card">
+                  <div class="card-body">
+                    <span class="fw-semibold d-block mb-1">Longest Step - {{job.longest_step.step_id}}</span>
+                    <h3 class="text-success fw-semibold">{{job.longest_step.elapsed_time}}</h3>
+                  </div>
+                </div>
+              </div>
+        </div>
+      <div class="row p-3">
+          <div class="card">
+            <div class="box">
+              <div class="subbox">
+                <canvas id="myChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+            
+          </div>
+        </div>
+      <div class="row p-3">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="card">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link active" id="step-tab" data-bs-toggle="tab" data-bs-target="#step-tab-pane" type="button" role="tab" aria-controls="step-tab-pane" aria-selected="true">Step Details</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="refiner-tab" data-bs-toggle="tab" data-bs-target="#refiner-tab-pane" type="button" role="tab" aria-controls="refiner-tab-pane" aria-selected="false">Refiner Details</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="ocr-tab" data-bs-toggle="tab" data-bs-target="#ocr-tab-pane" type="button" role="tab" aria-controls="ocr-tab-pane" aria-selected="false">OCR Details</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="ms-tab" data-bs-toggle="tab" data-bs-target="#ms-tab-pane" type="button" role="tab" aria-controls="ms-tab-pane" aria-selected="false">Model Service Details</button>
+                        </li>
+                      </ul>
+                      <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="step-tab-pane" role="tabpanel" aria-labelledby="step-tab" tabindex="0">
+                            <table id="steps" class="table table-striped" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Step ID</th>
+                                        <th>Type</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Elapsed Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                  {% for step in job.steps %}
+                                  <tr>
+                                      <td>{{ step.filename }}</td>
+                                      <td>{{ step.step_id }}</td>
+                                      <td>{{ step.type }}</td>
+                                      <td>{{ step.start_time }}</td>
+                                      <td>{{ step.end_time }}</td>
+                                      <td>{{ step.elapsed_time }}</td>
+                                  </tr>
+                              {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                      <th>Name</th>
+                                      <th>Step ID</th>
+                                      <th>Type</th>
+                                      <th>Start Time</th>
+                                      <th>End Time</th>
+                                      <th>Elapsed Time</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="refiner-tab-pane" role="tabpanel" aria-labelledby="refiner-tab" tabindex="0">
+                          <table id="refiner" class="table table-striped" style="width:100%">
+                            <thead>
+                                <tr>
+                                    
+                                    <th>Filename</th>
+                                    <th>Step ID</th>
+                                    <th>Fn Name</th>
+                                    <th>Fn Time (s)</th>
+                                    <th>Fn</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                              {% for refiner in job.refiner_details %}
+                              <tr>
+                                  
+                                  <td>{{ refiner.filename }}</td>
+                                  <td>{{ refiner.step_id }}</td>
+                                  <td>{{ refiner.name }}</td>
+                                  <td>{{ refiner.time_in_s }}</td>
+                                  <td>{{ refiner.fn }}</td>
+                              </tr>
+                          {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                  <th>Filename</th>
+                                  <th>Step ID</th>
+                                  <th>Fn Name</th>
+                                  <th>Fn Time (s)</th>
+                                  <th>Fn</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        </div>
+                        <div class="tab-pane fade" id="ocr-tab-pane" role="tabpanel" aria-labelledby="ocr-tab" tabindex="0">
+                          <table id="ocr" class="table table-striped" style="width:100%">
+                            <thead>
+                                <tr>
+                                    
+                                    <th>Name</th>
+                                    <th>Page</th>
+                                    <th>Step ID</th>
+                                    
+                                    <th>Ocr Time</th>
+                                    <th>Convert Time</th>
+                                    <th>Rotation Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                              {% for ocr in job.ocr_detail %}
+                              <tr>
+                                  
+                                  <td>{{ ocr.filename }}</td>
+                                  <td>{{ ocr.page_num }}</td>
+                                  <td>{{ ocr.step_id }}</td>
+                                  <td>{{ ocr.ocr_time }}</td>
+                                  <td>{{ ocr.convert }}</td>
+                                  <td>{{ ocr.rotation }}</td>
+                              </tr>
+                          {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                  <th>Name</th>
+                                  <th>Page</th>
+                                  <th>Step ID</th>
+                                  
+                                  <th>Ocr Time</th>
+                                  <th>Convert Time</th>
+                                  <th>Rotation Time</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        </div>
+                        <div class="tab-pane fade" id="ms-tab-pane" role="tabpanel" aria-labelledby="ms-tab" tabindex="0">
+                          <table id="ms" class="table table-striped" style="width:100%">
+                            <thead>
+                                <tr>
+                                    
+                                    <th>Filename</th>
+                                    <th>Step ID</th>
+                                    <th>Model Name</th>
+                                    <th>Model Version</th>
+                                    <th>Action</th>
+                                    <th>Start Time</th>
+                                    <th>End Time</th>
+                                    <th>Elasped Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                              {% for ms in job.model_service %}
+                              <tr>
+                                  <td>{{ ms.filename }}</td>
+                                  <td>{{ ms.step_id }}</td>
+                                  <td>{{ ms.name }}</td>
+                                  <td>{{ ms.version }}</td>
+                                  <td>{{ ms.action }}</td>
+                                  <td>{{ ms.start_time }}</td>
+                                  <td>{{ ms.end_time }}</td>
+                                  <td>{{ ms.elapsed_time }}</td>
+                              </tr>
+                          {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                  <th>Filename</th>
+                                  <th>Step ID</th>
+                                  <th>Model Name</th>
+                                  
+                                  <th>Model Version</th>
+                                  <th>Action</th>
+                                  <th>Start Time</th>
+                                  <th>End Time</th>
+                                  <th>Elasped Time</th>
+                              </tr>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        </div>
+                      </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    
+  </body>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-1.13.6/b-2.4.2/b-html5-2.4.2/r-2.5.0/datatables.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script>
+    new DataTable('#steps');
+    new DataTable('#ocr');
+    new DataTable('#refiner');
+    new DataTable('#ms');
+    </script>
+
+<script>
+  const colours = ['rgba(255, 26, 104, 1)', 'rgba(255, 159, 64, 1)', 'rgba(75, 192, 192, 1)'];
+
+  const browserData = {{job.files}}
+  const data = {
+    datasets: [
+      {
+      label: 'Flow Data',
+      data: browserData,
+      backgroundColor: [
+    'rgba(255, 99, 132, 0.8)',
+    'rgba(255, 159, 64, 0.8)',
+    'rgba(255, 205, 86, 0.8)',
+    'rgba(75, 192, 192, 0.8)',
+    'rgba(54, 162, 235, 0.8)',
+    'rgba(153, 102, 255, 0.8)',
+    'rgba(201, 203, 207, 0.8)'
+  ],
+  borderColor: [
+    'rgb(255, 99, 132)',
+    'rgb(255, 159, 64)',
+    'rgb(255, 205, 86)',
+    'rgb(75, 192, 192)',
+    'rgb(54, 162, 235)',
+    'rgb(153, 102, 255)',
+    'rgb(201, 203, 207)'
+  ],        
+      borderSkipped: false,
+      borderRadius: 10,
+      barPercentage: 0.5
+    }]
+  };
+
+  // todayLine plugin block
+  
+  const dates = []
+  browserData.forEach((k,v) => dates.push(k.x[0]));
+  browserData.forEach((k,v) => dates.push(k.x[1]));
+  const datesInMiliseconds = dates.map(date => Date.parse(date));
+  const maxMiliseconds = Math.max(...datesInMiliseconds);
+  const maxDate = new Date(maxMiliseconds);
+  const minMiliseconds = Math.min(...datesInMiliseconds);
+  const minDate = new Date(minMiliseconds);
+
+  console.log(maxDate.toISOString())
+  console.log(minDate.toISOString())
+  // config 
+  const config = {
+    type: 'bar',
+    data,
+    options: {
+      onHover: (event, chartElement) => {
+          event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default'
+
+      },
+      parsing: {
+          xAxisKey: 'x',
+          yAxisKey: 'y',
+      },
+      layout: {
+        padding: {
+          left: 100,
+          right: 100,
+          bottom: 20
+        }
+      },
+      indexAxis: 'y',
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          position: 'top',
+          type: 'time',
+          time: {
+            unit: 'minute',
+          //   displayFormats: {
+          //     day: 'd'
+          //   }
+          },
+          min: minDate.toISOString(),
+          max: maxDate.toISOString()
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          displayColors: false,
+          yAlign: 'bottom',
+          callbacks: {
+            label: (ctx) => {
+              return '';
+            },
+            title: (ctx) => {
+              const startDate = new Date(ctx[0].raw.x[0])
+              const endDate = new Date(ctx[0].raw.x[1])
+              const formattedStartDate = startDate.toLocaleString([], {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric'
+              });
+              const formattedEndDate = endDate.toLocaleString([], {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric'
+              });
+              return [`${ctx[0].raw.elapsed_time}s`, `${formattedStartDate} - ${formattedEndDate}`];
+            }
+          }
+        }
+      }
+    },
+    plugins: []
+  };
+
+  
+
+  // render init block
+  const ctx = document.getElementById('myChart');
+  myChart = new Chart(
+    ctx,
+    config
+  );
+  
+  const subbox = document.querySelector('.subbox');
+  subbox.style.height = '300px';
+  if(myChart.config.data.datasets[0].data.length > 7) {
+    const newHeight = 300 + ((myChart.config.data.datasets[0].data.length - 7) * 20);
+    subbox.style.height = `${newHeight}px`;
+  }
+
+
+  function clickHandler(click) {
+      const bar = myChart.getElementsAtEventForMode(click, 'nearest', {intersect: true}, true);
+      if (bar.length){
+          console.log(bar[0].index)
+          changeChart(bar[0].index);
+      }
+  };
+
+  function changeChart(value) {
+      // myChart.config.options.parsing.xAxisKey = 'details.x';
+      // myChart.config.options.parsing.yAxisKey = 'details.y';
+      if (myChart.config.data.datasets[0].data[value].type == 'apply_refiner') {
+
+          myChart.config.options.parsing.xAxisKey = 'time_in_ms'
+          myChart.config.options.parsing.yAxisKey = 'name'
+          myChart.config.data.datasets[0].data = myChart.config.data.datasets[0].data[value].sub_details
+          myChart.config.options.scales = {
+                                              y: {
+                                                  beginAtZero: true
+                                              },
+                                              x: {
+                                                  type: 'logarithmic'
+                                              }
+                                              };
+
+
+
+          myChart.config.options.plugins.tooltip = {
+          displayColors: false,
+          yAlign: 'bottom',
+          callbacks: {
+            label: (ctx) => {
+              return '';
+            },
+            title: (ctx) => {
+              return [`${ctx[0].raw.fn}`, `${ctx[0].raw.time_in_ms / 1000}s`];
+            }
+          }
+        }
+          const subbox = document.querySelector('.subbox');
+          console.log(myChart.config.data.datasets[0].data)
+          if(myChart.config.data.datasets[0].data.length > 1) {
+
+              const newHeight = 300 + ((myChart.config.data.datasets[0].data.length - 7) * 20);
+              subbox.style.height = `${newHeight}px`;
+              console.log(newHeight)
+              }
+          myChart.update()
+
+      }
+      else if (myChart.config.data.datasets[0].data[value].type == 'process_files' || myChart.config.data.datasets[0].data[value].type == 'reader') {
+
+          myChart.config.options.parsing.xAxisKey = 'ocr_time'
+          myChart.config.options.parsing.yAxisKey = 'page_num'
+          myChart.config.data.datasets[0].data = myChart.config.data.datasets[0].data[value].sub_details
+          myChart.config.options.scales = {
+                                              y: {
+                                                  beginAtZero: true
+                                                  
+                                              },
+                                              x: {
+                                                  // type: 'logarithmic'
+                                              }
+                                              };
+
+
+
+          myChart.config.options.plugins.tooltip = {
+          displayColors: false,
+          yAlign: 'bottom',
+          callbacks: {
+          label: (ctx) => {
+              return '';
+          },
+          title: (ctx) => {
+              return [`${ctx[0].raw.ocr_time}s`];
+          }
+          }
+          }
+          const subbox = document.querySelector('.subbox');
+          console.log(myChart.config.data.datasets[0].data)
+          if(myChart.config.data.datasets[0].data.length > 1) {
+
+              const newHeight = 300 + ((myChart.config.data.datasets[0].data.length - 7) * 10);
+              subbox.style.height = `${newHeight}px`;
+              console.log(newHeight)
+              }
+          myChart.update()
+
+          }
+      else {
+          if (myChart.config.data.datasets[0].data[value].detail.length > 0){ 
+          myChart.config.data.datasets[0].data = myChart.config.data.datasets[0].data[value].detail;
+
+          const dates = []
+          browserData[value].detail.forEach((k,v) => dates.push(k.x[0]));
+          browserData[value].detail.forEach((k,v) => dates.push(k.x[1]));
+          const datesInMiliseconds = dates.map(date => Date.parse(date));
+          const maxMiliseconds = Math.max(...datesInMiliseconds);
+          const maxDate = new Date(maxMiliseconds);
+          const minMiliseconds = Math.min(...datesInMiliseconds);
+          const minDate = new Date(minMiliseconds);
+
+          myChart.config.options.scales.x.min = minDate
+          myChart.config.options.scales.x.max = maxDate
+
+          const subbox = document.querySelector('.subbox');
+          if(browserData[value].detail.length > 1) {
+
+              const newHeight = 300 + ((browserData[value].detail.length - 7) * 20);
+              subbox.style.height = `${newHeight}px`;
+              console.log(newHeight)
+              }
+          myChart.update();
+            }
+      }
+
+
+  }
+  ctx.onclick = clickHandler;
+
+  </script>
+  </html>
