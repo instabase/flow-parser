@@ -596,11 +596,11 @@ def aggergate_details(job_details):
     return job_details
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", required=True)
-    parser.add_argument("-o", "--outputDir", required=True)
-    parser.add_argument("--output_type", nargs='+')
+    parser.add_argument("--input", required=True, help='Input can be either a single file or a folder')
+    parser.add_argument("-o", "--outputDir", required=True, help='Output location will be created automatically based on value')
+    parser.add_argument("--output_type", nargs='+', default = 'json', help="excel | json | html")
 
     args = parser.parse_args()
 
@@ -636,7 +636,9 @@ if __name__ == "__main__":
 
         if 'html' in args.output_type:
             job_details_agg = aggergate_details(job_details)
-            environment = Environment(loader=FileSystemLoader("."))
+            p = Path(__file__).parent.parent
+            template_path = f'{p}/flowparser/templates/'
+            environment = Environment(loader=FileSystemLoader(template_path))
             template = environment.get_template("template.html")
             html_file = template.render(job=job_details_agg)
             html_output = open(
