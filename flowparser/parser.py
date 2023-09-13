@@ -31,7 +31,7 @@ from operator import itemgetter
 from pathlib import Path
 import numpy
 from jinja2 import Environment, FileSystemLoader
-
+import csv
 
 def parse(logs):
 
@@ -616,7 +616,7 @@ def main():
     else:
         for filename in os.listdir(args.input):
             t = os.path.join(args.input, filename)
-            if os.path.isfile(t) and t.endswith("json"):
+            if os.path.isfile(t) :
                 files_to_parse.append(t)
 
     if 'excel' in args.output_type:
@@ -629,7 +629,16 @@ def main():
         combined_ocr_details_df = None
 
     for file in files_to_parse:
-        log_detail = json.load(open(file))
+        if file.endswith("json"):
+            log_detail = json.load(open(file))
+        elif file.endswith("csv"):
+            reader = csv.DictReader(open(file))
+            log_detail = list()
+            for items in reader:
+                log_detail.append(items)
+        else:
+            continue
+        
 
         job_details = parse(log_detail)
         aggergate_job_details.append(aggergate_details(job_details))
@@ -731,3 +740,6 @@ def main():
             refiner_details_sheet.append(r)
 
         wb.save(f"{outputDir}/job_aggregation.xlsx")
+
+if __name__ == "__main__":
+    main()

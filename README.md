@@ -7,8 +7,10 @@ A simple utility which will parse Instabase Flow Logs
 ## Setup
 1. Download the latest flow parser from https://github.com/instabase/flow-parser
 
-2. ```shell
-   python setup.py install
+2. 
+    ```shell
+    cd ./flow-parser
+   pip install .
     ```
    
 1. ```ibflowparser``` is now an executable to run 
@@ -27,7 +29,7 @@ A simple utility which will parse Instabase Flow Logs
 
 ## Usage
 
-Instabase Flow Log Parser leverages the json log files provided direclty from Flow Dashboard. To get started, please leverage Flow Dashboard > Select Job Logs > Download JSON.
+Instabase Flow Log Parser leverages the json or csv log files provided direclty from Flow Dashboard. To get started, please leverage Flow Dashboard > Select Job Logs > Download JSON | CSV.
 
 ### Parse and Export
 You can provide a single log file or a folder into the parser. Excel | Json | Html are valid output types

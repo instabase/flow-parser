@@ -6,3 +6,8 @@ History
 ------------------
 
 * First release
+
+0.0.2 (2023-09-13)
+------------------
+
+* Added csv support
