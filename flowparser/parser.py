@@ -40,7 +40,13 @@ def parse(logs):
         format = "%Y-%m-%d %H:%M:%S,%f"
         datetime.strptime(logs[0]["ts"], format)
     except:
-        format = "%m/%d/%y, %I:%M:%S %p"
+        try:
+            format = "%m/%d/%y, %I:%M:%S %p"
+            datetime.strptime(logs[0]["ts"], format)
+        except:
+            #15/09/2023, 18:55:33
+            format = '%d/%m/%Y, %H:%M:%S'
+            datetime.strptime(logs[0]["ts"], format)
 
     # Check log timestamp order in case order was modified before saving from UI
     if datetime.strptime(logs[0]["ts"], format) > datetime.strptime(logs[-1]["ts"], format):
