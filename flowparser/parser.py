@@ -90,13 +90,13 @@ def parse(logs):
             r"^Written file=.*\/(.*).csv successfully.", log_details
         )
         file_name_classifer_2 = re.findall(
-            r"^Written file=.*\/(.*)\.ibmsg successfully", log_details
+            r"^Written file=.*\/(.*)\.\w+\.ibmsg successfully", log_details
         )
         file_name_refiner_split_class = re.findall(
             r"^record=(.*)_.*_.*\.ibmsg column.*", log_details
         )
         file_name_refiner = re.findall(
-            r"^record=(.*)\.ibmsg column.*", log_details)
+            r"^record=(.*)\.\w+\.ibmsg column.*", log_details)
         file_name_refiner_22_10 = re.findall(
             r"Refiner Record: (.*)\.\w+ Field: (.*) run time: (.*) sec", log_details
         )
@@ -129,6 +129,7 @@ def parse(logs):
             stage_to_filename.setdefault(
                 log["taskId"], file_name_process_files[0])
             stage_to_type.setdefault(log["step"], "process_files")
+
         if file_name_output_dir:
             job_details.setdefault(
                 "outputDir", "/".join(
@@ -289,7 +290,7 @@ def parse(logs):
             # Mapping task id to filename
             if task_id in stage_to_filename:
                 task_id_dict = tasks_dict.setdefault(
-                    stage_to_filename[task_id], {})
+                    stage_to_filename[task_id].split('.')[0], {})
             else:
                 task_id_dict = tasks_dict.setdefault(task_id, {})
 
@@ -407,7 +408,7 @@ def parse(logs):
 
             # OCR Details
             rotation_time = re.findall(
-                r"Selecting best rotation took .*(\d+.\d+s) on (.*)\.\w+_p(\d+)",
+                r"Selecting best rotation took .*(\d+.\d+s) on (.*)\.\w*_p(\d+)",
                 step_log,
             )
             if rotation_time:
@@ -421,8 +422,9 @@ def parse(logs):
                     sorted(pages.items(), key=lambda t: int(t[0]))
                 )
 
+
             ocr_time = re.findall(
-                r"Request to OCR.*took (\d+.\d+)s on (.*)\.\w+_p(\d+)", step_log
+                r"Request to OCR.*took (\d+.\d+)s on (.*)\.\w*_p(\d+)", step_log
             )
             if ocr_time:
                 ocr_detail = step.setdefault("pages", {})
@@ -433,10 +435,11 @@ def parse(logs):
                 step["pages"][ocr_time[0][1]]["pages"] = OrderedDict(
                     sorted(pages.items(), key=lambda t: int(t[0]))
                 )
-
+            
             convert_time = re.findall(
-                r'(\d+.\d+s) convert_image on (.*)\.\w+_p(\d+)', step_log
+                r'(\d+.\d+s) convert_image on (.*)\.\w*_p(\d+)', step_log
             )
+
             if convert_time:
                 ocr_detail = step.setdefault("pages", {})
                 filename = ocr_detail.setdefault(convert_time[0][1], {})
@@ -523,8 +526,8 @@ def aggergate_details(job_details):
                             "job_id": job_details['jobid'],
                             "filename": k,
                             "step_id": x,
-                            "name": spans['model_name'],
-                            "version": spans['model_version'],
+                            "name": spans['model_name'] if 'model_name' in spans else None,
+                            "version": spans['model_version'] if 'model_version' in spans else None,
                             "action": span_step['name'],
                             "start_time": span_step['start_time'] if 'start_time' in span_step else None,
                             "end_time": span_step['end_time'],
@@ -539,20 +542,23 @@ def aggergate_details(job_details):
                     for page_num, page_details in pages_details["pages"].items():
                         ocr_time.append(float(page_details["ocr_time"]))
 
+                        if 'convert_time' in page_details:
+                            convert_time = float(page_details['convert_time'].replace("s", ""))
+                        else:
+                            convert_time = ''
+                        if 'rotation_time' in page_details:
+                            rotation_time = float(page_details['rotation_time'].replace("s", ""))
+                        else:
+                            rotation_time = ''
+
                         ocr_detail_2.append(
                             {"job_id": job_details['jobid'],
                                 "filename": k,
                                 "step_id": x,
                                 "page_num": page_num,
                                 "ocr_time": float(page_details["ocr_time"]),
-                                "convert": float(
-                                    page_details["convert_time"].replace(
-                                        "s", "")
-                            ),
-                                "rotation": float(
-                                    page_details["rotation_time"].replace(
-                                        "s", "")
-                            ),
+                                "convert": convert_time,
+                                "rotation": rotation_time,
                             }
                         )
 

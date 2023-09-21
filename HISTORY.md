@@ -11,3 +11,9 @@ History
 ------------------
 
 * Added csv support
+
+0.0.3 (2023-09-21
+------------------
+
+* Added Tiff Support
+* Fixed when no rotation or convert is found via a page
