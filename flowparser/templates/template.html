@@ -322,10 +322,19 @@ SOFTWARE.
   <script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-1.13.6/b-2.4.2/b-html5-2.4.2/r-2.5.0/datatables.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/plug-ins/1.13.6/sorting/natural.js"></script>
   <script>
-    new DataTable('#steps');
+    $('#steps').dataTable( {
+        columnDefs: [
+        { type: 'natural', targets: 1 }
+        ]
+    } );
+    $('#refiner').dataTable( {
+        columnDefs: [
+        { type: 'natural', targets: 1 }
+        ]
+    } );
     new DataTable('#ocr');
-    new DataTable('#refiner');
     new DataTable('#ms');
     </script>
 
