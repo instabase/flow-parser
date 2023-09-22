@@ -33,7 +33,7 @@ import numpy
 from jinja2 import Environment, FileSystemLoader
 import csv
 
-def parse(logs):
+def parse(logs, waiting_threshold):
 
     # Determine which time format is used
     try:
@@ -493,7 +493,7 @@ def parse(logs):
                         true_previous_time = previous_time[-abs(timeback)]
                         break
                 waiting_time = (step_start_time - true_previous_time).total_seconds()
-                if waiting_time > 5:
+                if waiting_time > waiting_threshold:
                     job_details['tasks'][taskName]['steps'][stepName]['waiting_for_resources'] = {
                         'start_time': true_previous_time,
                         'end_time' : step_start_time,
@@ -608,8 +608,8 @@ def aggergate_details(job_details):
                 waiting_for_resources = y['waiting_for_resources']
                 details.append({
                     "x" : [waiting_for_resources['start_time'], waiting_for_resources['end_time']],
-                    'y' : 'waiting_on_resources',
-                    'type': 'waiting_on_resources',
+                    'y' : f'{x}_waiting',
+                    'type': 'waiting',
                     'elapsed_time' : waiting_for_resources['elapsed_time']
                     })
             details.append(
@@ -621,7 +621,8 @@ def aggergate_details(job_details):
                     "sub_details": sub_details,
                 }
             )
-
+        if 'Stage' in k and y["elapsed_time"] == 0:
+            continue
         files_dict.append(
             {
                 "x": [v["start_time"], v["end_time"]],
@@ -654,11 +655,11 @@ def main():
     parser.add_argument("--input", required=True, help='Input can be either a single file or a folder')
     parser.add_argument("-o", "--outputDir", required=True, help='Output location will be created automatically based on value')
     parser.add_argument("--output_type", nargs='+', default = 'json', help="excel | json | html")
-
+    parser.add_argument("--waiting-threshold", default=1, help='Threshold to indicate waiting for resources in seconds')
     args = parser.parse_args()
 
+    waiting_threshold = float(args.waiting_threshold)
     aggergate_job_details = []
-
     outputDir = Path(args.outputDir)
     if not outputDir.exists():
         os.mkdir(outputDir)
@@ -693,7 +694,7 @@ def main():
             continue
         
 
-        job_details = parse(log_detail)
+        job_details = parse(log_detail, waiting_threshold)
         aggergate_job_details.append(aggergate_details(job_details))
 
         if 'html' in args.output_type:
