@@ -475,8 +475,41 @@ def parse(logs):
                             "steps"
                         ].setdefault(step_name, {})
                         temp_step.update(step)
+    
+    #Calculate out waiting time for app-task
+    for taskName, taskValues in job_details["tasks"].items():
+        previous_time = []
+        for stepName, stepValues in taskValues["steps"].items():
+            if previous_time:
+                step_start_time = stepValues['start_time']
+                step_end_time = stepValues['end_time']
+
+                #How many steps to go back to find link for waiting for resources
+                timeback_steps = 3
+                for timeback in range(1,timeback_steps):
+                    if previous_time[-abs(timeback)] > step_start_time:
+                        continue
+                    else:
+                        true_previous_time = previous_time[-abs(timeback)]
+                        break
+                waiting_time = (step_start_time - true_previous_time).total_seconds()
+                if waiting_time > 5:
+                    job_details['tasks'][taskName]['steps'][stepName]['waiting_for_resources'] = {
+                        'start_time': true_previous_time,
+                        'end_time' : step_start_time,
+                        'elapsed_time' : waiting_time
+                    }
+                previous_time.append(step_end_time)
+            else:
+                previous_time.append(stepValues['end_time'])
+    
     # Clean up any Datatime obj in dict
     return json.loads(json.dumps(job_details, indent=2, default=str))
+
+
+
+
+
 
 
 def aggergate_details(job_details):
@@ -571,6 +604,14 @@ def aggergate_details(job_details):
                     break
                 sub_details = new_pages
 
+            if 'waiting_for_resources' in y:
+                waiting_for_resources = y['waiting_for_resources']
+                details.append({
+                    "x" : [waiting_for_resources['start_time'], waiting_for_resources['end_time']],
+                    'y' : 'waiting_on_resources',
+                    'type': 'waiting_on_resources',
+                    'elapsed_time' : waiting_for_resources['elapsed_time']
+                    })
             details.append(
                 {
                     "x": [y["start_time"], y["end_time"]],
