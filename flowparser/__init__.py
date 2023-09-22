@@ -4,4 +4,4 @@
 
 __author__ = """Josh Bronikowski"""
 __email__ = 'josh.bronikowski@instabase.com'
-__version__ = '0.0.3'
+__version__ = '0.0.3.1'
