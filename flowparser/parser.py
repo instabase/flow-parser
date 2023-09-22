@@ -280,6 +280,9 @@ def parse(logs):
             })
 
         if "step" in log:
+            # Remove blank step elements that come in from csv to json conversion.
+            if log['step'] == '':
+                continue
             task_id = log["taskId"]
             tasks_dict = job_details.setdefault("tasks", {})
 
