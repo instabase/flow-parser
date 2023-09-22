@@ -441,7 +441,7 @@ SOFTWARE.
                 minute: 'numeric',
                 second: 'numeric'
               });
-              return [`${ctx[0].raw.elapsed_time}s`, `${formattedStartDate} - ${formattedEndDate}`];
+              return [`${ctx[0].raw.type}`, `${ctx[0].raw.elapsed_time}s`, `${formattedStartDate} - ${formattedEndDate}`];
             }
           }
         }

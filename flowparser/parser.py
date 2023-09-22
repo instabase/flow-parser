@@ -280,6 +280,10 @@ def parse(logs, waiting_threshold):
             })
 
         if "step" in log:
+            # Remove blank step elements that come in from csv to json conversion.
+            if log['step'] == '':
+                continue
+            
             task_id = log["taskId"]
             tasks_dict = job_details.setdefault("tasks", {})
 
@@ -480,6 +484,7 @@ def parse(logs, waiting_threshold):
     for taskName, taskValues in job_details["tasks"].items():
         previous_time = []
         for stepName, stepValues in taskValues["steps"].items():
+            print(taskValues)
             if previous_time:
                 step_start_time = stepValues['start_time']
                 step_end_time = stepValues['end_time']
@@ -493,7 +498,7 @@ def parse(logs, waiting_threshold):
                         true_previous_time = previous_time[-abs(timeback)]
                         break
                 waiting_time = (step_start_time - true_previous_time).total_seconds()
-                if waiting_time > waiting_threshold:
+                if waiting_time >= waiting_threshold:
                     job_details['tasks'][taskName]['steps'][stepName]['waiting_for_resources'] = {
                         'start_time': true_previous_time,
                         'end_time' : step_start_time,
@@ -628,6 +633,7 @@ def aggergate_details(job_details):
                 "x": [v["start_time"], v["end_time"]],
                 "y": k,
                 "elapsed_time": y["elapsed_time"],
+                "type" : 'file',
                 "detail": details,
             }
         )
