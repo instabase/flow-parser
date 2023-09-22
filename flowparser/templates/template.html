@@ -382,6 +382,11 @@ SOFTWARE.
   const minMiliseconds = Math.min(...datesInMiliseconds);
   const minDate = new Date(minMiliseconds);
 
+  //create arrays for handling past data
+  const pastData = [];
+  const pastOptions = [];
+  const pastHeight = [];
+
   console.log(maxDate.toISOString())
   console.log(minDate.toISOString())
   // config 
@@ -450,7 +455,7 @@ SOFTWARE.
                 minute: 'numeric',
                 second: 'numeric'
               });
-              return [`${ctx[0].raw.elapsed_time}s`, `${formattedStartDate} - ${formattedEndDate}`];
+              return [`${ctx[0].raw.type}`, `${ctx[0].raw.elapsed_time}s`, `${formattedStartDate} - ${formattedEndDate}`];
             }
           }
         }
@@ -484,9 +489,67 @@ SOFTWARE.
       }
   };
 
+  function clone(item) {
+    if (!item) { return item; } // null, undefined values check
+
+    var types = [ Number, String, Boolean ], 
+        result;
+
+    // normalizing primitives if someone did new String('aaa'), or new Number('444');
+    types.forEach(function(type) {
+        if (item instanceof type) {
+            result = type( item );
+        }
+    });
+
+    if (typeof result == "undefined") {
+        if (Object.prototype.toString.call( item ) === "[object Array]") {
+            result = [];
+            item.forEach(function(child, index, array) { 
+                result[index] = clone( child );
+            });
+        } else if (typeof item == "object") {
+            // testing that this is DOM
+            if (item.nodeType && typeof item.cloneNode == "function") {
+                result = item.cloneNode( true );    
+            } else if (!item.prototype) { // check that this is a literal
+                if (item instanceof Date) {
+                    result = new Date(item);
+                } else {
+                    // it is an object literal
+                    result = {};
+                    for (var i in item) {
+                        result[i] = clone( item[i] );
+                    }
+                }
+            } else {
+                // depending what you would like here,
+                // just keep the reference, or create new object
+                if (false && item.constructor) {
+                    // would not advice to do that, reason? Read below
+                    result = new item.constructor();
+                } else {
+                    result = item;
+                }
+            }
+        } else {
+            result = item;
+        }
+    }
+
+    return result;
+}
+
   function changeChart(value) {
       // myChart.config.options.parsing.xAxisKey = 'details.x';
       // myChart.config.options.parsing.yAxisKey = 'details.y';
+
+      //create copies of the current data configurations and push them to arrays
+      pastData.push(clone(myChart.config.data));
+      pastOptions.push(clone(myChart.config.options));
+      pastHeight.push(clone(subbox.style.height));
+      myChart.data.labels = [];
+
       if (myChart.config.data.datasets[0].data[value].type == 'apply_refiner') {
 
           myChart.config.options.parsing.xAxisKey = 'time_in_ms'
@@ -566,10 +629,9 @@ SOFTWARE.
           myChart.update()
 
           }
-      else {
-          if (myChart.config.data.datasets[0].data[value].detail.length > 0){ 
+      else if (myChart.config.data.datasets[0].data[value].detail) {
+          if (myChart.config.data.datasets[0].data[value].detail.length > 0){
           myChart.config.data.datasets[0].data = myChart.config.data.datasets[0].data[value].detail;
-
           const dates = []
           browserData[value].detail.forEach((k,v) => dates.push(k.x[0]));
           browserData[value].detail.forEach((k,v) => dates.push(k.x[1]));
@@ -593,9 +655,33 @@ SOFTWARE.
             }
       }
 
+      //if the screen hasn't changed, remove the attempt to store history      
+      else  {
+        pastData.pop();
+        pastOptions.pop();
+        pastHeight.pop();
+      }
+
 
   }
+
+
+  //create function to pop old data when double click is registered
+  function dblclickHandler() {
+    if (window.getSelection) {window.getSelection().removeAllRanges();}
+    else if (document.selection) {document.selection.empty();}
+    if (pastData.length) {
+      subbox.style.height = pastHeight.pop();
+      myChart.config.data = pastData.pop();
+      myChart.config.options = pastOptions.pop();
+      myChart.update();
+    }
+  }
+
   ctx.onclick = clickHandler;
+
+  //create handler for double clicking
+  ctx.ondblclick = dblclickHandler;
 
   </script>
   </html>

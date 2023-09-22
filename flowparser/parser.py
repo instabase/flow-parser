@@ -33,7 +33,7 @@ import numpy
 from jinja2 import Environment, FileSystemLoader
 import csv
 
-def parse(logs):
+def parse(logs, waiting_threshold):
 
     # Determine which time format is used
     try:
@@ -283,6 +283,7 @@ def parse(logs):
             # Remove blank step elements that come in from csv to json conversion.
             if log['step'] == '':
                 continue
+
             task_id = log["taskId"]
             tasks_dict = job_details.setdefault("tasks", {})
 
@@ -478,8 +479,42 @@ def parse(logs):
                             "steps"
                         ].setdefault(step_name, {})
                         temp_step.update(step)
+    
+    #Calculate out waiting time for app-task
+    for taskName, taskValues in job_details["tasks"].items():
+        previous_time = []
+        for stepName, stepValues in taskValues["steps"].items():
+            print(taskValues)
+            if previous_time:
+                step_start_time = stepValues['start_time']
+                step_end_time = stepValues['end_time']
+
+                #How many steps to go back to find link for waiting for resources
+                timeback_steps = 3
+                for timeback in range(1,timeback_steps):
+                    if previous_time[-abs(timeback)] > step_start_time:
+                        continue
+                    else:
+                        true_previous_time = previous_time[-abs(timeback)]
+                        break
+                waiting_time = (step_start_time - true_previous_time).total_seconds()
+                if waiting_time >= waiting_threshold:
+                    job_details['tasks'][taskName]['steps'][stepName]['waiting_for_resources'] = {
+                        'start_time': true_previous_time,
+                        'end_time' : step_start_time,
+                        'elapsed_time' : waiting_time
+                    }
+                previous_time.append(step_end_time)
+            else:
+                previous_time.append(stepValues['end_time'])
+    
     # Clean up any Datatime obj in dict
     return json.loads(json.dumps(job_details, indent=2, default=str))
+
+
+
+
+
 
 
 def aggergate_details(job_details):
@@ -574,6 +609,14 @@ def aggergate_details(job_details):
                     break
                 sub_details = new_pages
 
+            if 'waiting_for_resources' in y:
+                waiting_for_resources = y['waiting_for_resources']
+                details.append({
+                    "x" : [waiting_for_resources['start_time'], waiting_for_resources['end_time']],
+                    'y' : f'{x}_waiting',
+                    'type': 'waiting',
+                    'elapsed_time' : waiting_for_resources['elapsed_time']
+                    })
             details.append(
                 {
                     "x": [y["start_time"], y["end_time"]],
@@ -583,12 +626,14 @@ def aggergate_details(job_details):
                     "sub_details": sub_details,
                 }
             )
-
+        if 'Stage' in k and y["elapsed_time"] == 0:
+            continue
         files_dict.append(
             {
                 "x": [v["start_time"], v["end_time"]],
                 "y": k,
                 "elapsed_time": y["elapsed_time"],
+                "type" : 'file',
                 "detail": details,
             }
         )
@@ -616,11 +661,11 @@ def main():
     parser.add_argument("--input", required=True, help='Input can be either a single file or a folder')
     parser.add_argument("-o", "--outputDir", required=True, help='Output location will be created automatically based on value')
     parser.add_argument("--output_type", nargs='+', default = 'json', help="excel | json | html")
-
+    parser.add_argument("--waiting-threshold", default=1, help='Threshold to indicate waiting for resources in seconds')
     args = parser.parse_args()
 
+    waiting_threshold = float(args.waiting_threshold)
     aggergate_job_details = []
-
     outputDir = Path(args.outputDir)
     if not outputDir.exists():
         os.mkdir(outputDir)
@@ -655,7 +700,7 @@ def main():
             continue
         
 
-        job_details = parse(log_detail)
+        job_details = parse(log_detail, waiting_threshold)
         aggergate_job_details.append(aggergate_details(job_details))
 
         if 'html' in args.output_type:
