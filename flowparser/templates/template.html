@@ -373,6 +373,11 @@ SOFTWARE.
   const minMiliseconds = Math.min(...datesInMiliseconds);
   const minDate = new Date(minMiliseconds);
 
+  //create arrays for handling past data
+  const pastData = [];
+  const pastOptions = [];
+  const pastHeight = [];
+
   console.log(maxDate.toISOString())
   console.log(minDate.toISOString())
   // config 
@@ -478,6 +483,13 @@ SOFTWARE.
   function changeChart(value) {
       // myChart.config.options.parsing.xAxisKey = 'details.x';
       // myChart.config.options.parsing.yAxisKey = 'details.y';
+
+      //create copies of the current data configurations and push them to arrays
+      pastData.push(JSON.parse(JSON.stringify(myChart.config.data)));
+      pastOptions.push(JSON.parse(JSON.stringify(myChart.config.options)));
+      pastHeight.push(JSON.parse(JSON.stringify(subbox.style.height)));
+      myChart.data.labels = [];
+
       if (myChart.config.data.datasets[0].data[value].type == 'apply_refiner') {
 
           myChart.config.options.parsing.xAxisKey = 'time_in_ms'
@@ -557,10 +569,9 @@ SOFTWARE.
           myChart.update()
 
           }
-      else {
-          if (myChart.config.data.datasets[0].data[value].detail.length > 0){ 
+      else if (myChart.config.data.datasets[0].data[value].detail) {
+          if (myChart.config.data.datasets[0].data[value].detail.length > 0){
           myChart.config.data.datasets[0].data = myChart.config.data.datasets[0].data[value].detail;
-
           const dates = []
           browserData[value].detail.forEach((k,v) => dates.push(k.x[0]));
           browserData[value].detail.forEach((k,v) => dates.push(k.x[1]));
@@ -584,9 +595,33 @@ SOFTWARE.
             }
       }
 
+      //if the screen hasn't changed, remove the attempt to store history      
+      else  {
+        pastData.pop();
+        pastOptions.pop();
+        pastHeight.pop();
+      }
+
 
   }
+
+
+  //create function to pop old data when double click is registered
+  function dblclickHandler() {
+    if (window.getSelection) {window.getSelection().removeAllRanges();}
+    else if (document.selection) {document.selection.empty();}
+    if (pastData.length) {
+      subbox.style.height = pastHeight.pop();
+      myChart.config.data = pastData.pop();
+      myChart.config.options = pastOptions.pop();
+      myChart.update();
+    }
+  }
+
   ctx.onclick = clickHandler;
+
+  //create handler for double clicking
+  ctx.ondblclick = dblclickHandler;
 
   </script>
   </html>
