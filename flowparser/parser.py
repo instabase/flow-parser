@@ -484,7 +484,6 @@ def parse(logs, waiting_threshold):
     for taskName, taskValues in job_details["tasks"].items():
         previous_time = []
         for stepName, stepValues in taskValues["steps"].items():
-            print(taskValues)
             if previous_time:
                 step_start_time = stepValues['start_time']
                 step_end_time = stepValues['end_time']
