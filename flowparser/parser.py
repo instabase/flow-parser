@@ -490,19 +490,20 @@ def parse(logs, waiting_threshold):
 
                 #How many steps to go back to find link for waiting for resources
                 timeback_steps = 3
-                for timeback in range(1,timeback_steps):
-                    if previous_time[-abs(timeback)] > step_start_time:
-                        continue
-                    else:
-                        true_previous_time = previous_time[-abs(timeback)]
-                        break
-                waiting_time = (step_start_time - true_previous_time).total_seconds()
-                if waiting_time >= waiting_threshold:
-                    job_details['tasks'][taskName]['steps'][stepName]['waiting_for_resources'] = {
-                        'start_time': true_previous_time,
-                        'end_time' : step_start_time,
-                        'elapsed_time' : waiting_time
-                    }
+                if len(previous_time) > 1:
+                    for timeback in range(1,timeback_steps):
+                        if previous_time[-abs(timeback)] > step_start_time:
+                            continue
+                        else:
+                            true_previous_time = previous_time[-abs(timeback)]
+                            break
+                    waiting_time = (step_start_time - true_previous_time).total_seconds()
+                    if waiting_time >= waiting_threshold:
+                        job_details['tasks'][taskName]['steps'][stepName]['waiting_for_resources'] = {
+                            'start_time': true_previous_time,
+                            'end_time' : step_start_time,
+                            'elapsed_time' : waiting_time
+                        }
                 previous_time.append(step_end_time)
             else:
                 previous_time.append(stepValues['end_time'])
