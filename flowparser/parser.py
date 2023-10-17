@@ -481,10 +481,13 @@ def parse(logs, waiting_threshold):
                         temp_step.update(step)
     
     #Calculate out waiting time for app-task
+    if "tasks" not in job_details:
+        return {'ERROR': 'Flow logs for job-id {} contain no steps, and cannot be processed'.format(job_id)}
+
     for taskName, taskValues in job_details["tasks"].items():
         previous_time = []
         for stepName, stepValues in taskValues["steps"].items():
-            print(taskValues)
+            #print(taskValues)
             if previous_time:
                 step_start_time = stepValues['start_time']
                 step_end_time = stepValues['end_time']
@@ -701,6 +704,12 @@ def main():
         
 
         job_details = parse(log_detail, waiting_threshold)
+        if "ERROR" in job_details:
+            print ("ERROR: {}".format(job_details["ERROR"]))
+            continue
+        else:
+            print("Successfully processed job-id {}".format(job_details["jobid"]))
+
         aggergate_job_details.append(aggergate_details(job_details))
 
         if 'html' in args.output_type:
