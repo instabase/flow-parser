@@ -36,7 +36,11 @@ def main():
 
     for file in files_to_parse:
         if file.endswith("json"):
-            log_detail = json.load(open(file))
+            try:
+                log_detail = json.load(open(file))
+            except:
+                print(f'Cannot parse {file}')
+                continue
         elif file.endswith("csv"):
             reader = csv.DictReader(open(file))
             log_detail = list()

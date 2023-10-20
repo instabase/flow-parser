@@ -729,7 +729,12 @@ class LogParser(object):
                                 rotation_time = float(page_details['rotation_time'].replace("s", ""))
                             else:
                                 rotation_time = ''
-
+                            if 'ocr_time_details' in page_details:
+                                ocr_start_time = page_details['ocr_time_details']["start_time"]
+                                ocr_end_time = page_details['ocr_time_details']["end_time"]
+                            else:
+                                ocr_start_time = 0
+                                ocr_end_time = 0
                             ocr_detail_2.append(
                                 {"job_id": job_details['jobid'],
                                     "filename": k,
@@ -738,14 +743,14 @@ class LogParser(object):
                                     "ocr_time": float(page_details["ocr_time"]),
                                     "convert": convert_time,
                                     "rotation": rotation_time,
-                                    "ocr_start_time" : page_details['ocr_time_details']["start_time"]
+                                    "ocr_start_time" : ocr_start_time
                                 }
                             )
 
                             ocr_detail_chart.append(
                                 {
                                     "y" : page_details["ocr_time"],
-                                    "x": page_details['ocr_time_details']["start_time"]
+                                    "x": ocr_start_time
                                 }
                             )
 
@@ -753,7 +758,7 @@ class LogParser(object):
                                 {
                                     "y": "pg " + page_num,
                                     "elapsed_time": page_details["ocr_time"],
-                                    "x": [page_details['ocr_time_details']["start_time"],page_details['ocr_time_details']["end_time"]],
+                                    "x": [ocr_start_time,ocr_end_time],
                                 }
                             )
                         break
