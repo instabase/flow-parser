@@ -71,6 +71,14 @@ SOFTWARE.
       </nav>
       <div class="container-fluid">
         <div class="row p-3">
+          <div class="col-lg-2 col-md-6 col-6 mb-4">
+            <div class="card">
+              <div class="card-body">
+                <span class="fw-semibold d-block mb-1">Flow Version</span>
+                <h3 class="text-success fw-semibold">{{job.flow_version}}</h3>
+              </div>
+            </div>
+          </div>
             <div class="col-lg-2 col-md-6 col-6 mb-4">
                 <div class="card">
                   <div class="card-body">
@@ -104,14 +112,7 @@ SOFTWARE.
                 </div>
               </div>
 
-            <div class="col-lg-2 col-md-6 col-6 mb-4">
-                <div class="card">
-                  <div class="card-body">
-                    <span class="fw-semibold d-block mb-1">Empty</span>
-                    <h3 class="text-success fw-semibold">1234</h3>
-                  </div>
-                </div>
-              </div>
+  
             <div class="col-lg-2 col-md-6 col-6 mb-4">
                 <div class="card">
                   <div class="card-body">
@@ -121,17 +122,38 @@ SOFTWARE.
                 </div>
               </div>
         </div>
-      <div class="row p-3">
-          <div class="card">
-            <div class="box">
-              <div class="subbox">
-                <canvas id="myChart"></canvas>
+        <div class="row p-3">
+          <div class="col-lg-12">
+              <div class="row">
+                  <div class="card">
+                      <ul class="nav nav-tabs" id="myTab" role="tablist">
+                          <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="file-tab" data-bs-toggle="tab" data-bs-target="#file-tab-pane" type="button" role="tab" aria-controls="file-tab-pane" aria-selected="true">File Details</button>
+                          </li>
+                          <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="ocr-chart-tab" data-bs-toggle="tab" data-bs-target="#ocr-chart-tab-pane" type="button" role="tab" aria-controls="ocr-chart-tab-pane" aria-selected="false">OCR</button>
+                          </li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
+                          <div class="tab-pane fade show active" id="file-tab-pane" role="tabpanel" aria-labelledby="file-tab" tabindex="0">
+                            <div class="card">
+                              <div class="box">
+                                <div class="subbox">
+                                  <canvas id="myChart"></canvas>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="tab-pane fade" id="ocr-chart-tab-pane" role="tabpanel" aria-labelledby="ocr-chart-tab" tabindex="0">
+                            <div class="chart-container" style="position: center; height:50vh;">
+                              <canvas id="myChartOCR"></canvas>
+                            </div>
+                          </div>
+                        </div>
+                  </div>
               </div>
-            </div>
           </div>
-
-            
-          </div>
+        </div>
         </div>
       <div class="row p-3">
         <div class="col-lg-12">
@@ -339,6 +361,39 @@ SOFTWARE.
     </script>
 
 <script>
+  const ocrData = {{job.ocr_detail_chart}}
+  const ocrConfigData  = {
+                            datasets: [{
+                                label: 'OCR Details',
+                                data: ocrData,
+                                backgroundColor: 'rgb(255, 99, 132)'
+                            }],
+                            };
+    const ocrConfig = {
+    type: 'scatter',
+    data: ocrConfigData,
+    options: {
+        scales: {
+            x: {
+                type: 'time',
+                position: 'bottom'
+            }
+        },
+        maintainAspectRatio: false
+        }
+    };
+    const OCRctx = document.getElementById('myChartOCR');
+    myChartOCR = new Chart(
+        OCRctx,
+        ocrConfig
+    );
+    // myChartOCR.config.options.parsing.xAxisKey = 'ocr_start_time'
+    // myChartOCR.config.options.parsing.yAxisKey = 'ocr_time'
+    // myChartOCR.update();
+</script>
+
+
+<script>
   const colours = ['rgba(255, 26, 104, 1)', 'rgba(255, 159, 64, 1)', 'rgba(75, 192, 192, 1)'];
 
   const browserData = {{job.files}}
@@ -404,9 +459,9 @@ SOFTWARE.
       },
       layout: {
         padding: {
-          left: 100,
-          right: 100,
-          bottom: 20
+          left: 0,
+          right: 0,
+          bottom: 0
         }
       },
       indexAxis: 'y',
@@ -590,43 +645,29 @@ SOFTWARE.
 
       }
       else if (myChart.config.data.datasets[0].data[value].type == 'process_files' || myChart.config.data.datasets[0].data[value].type == 'reader') {
+        if (myChart.config.data.datasets[0].data[value].sub_details.length > 0){
+          myChart.config.data.datasets[0].data = myChart.config.data.datasets[0].data[value].sub_details;
+          const dates = []
+          myChart.config.data.datasets[0].data.forEach((k,v) => dates.push(k.x[0]));
+          myChart.config.data.datasets[0].data.forEach((k,v) => dates.push(k.x[1]));
+          const datesInMiliseconds = dates.map(date => Date.parse(date));
+          const maxMiliseconds = Math.max(...datesInMiliseconds);
+          const maxDate = new Date(maxMiliseconds);
+          const minMiliseconds = Math.min(...datesInMiliseconds);
+          const minDate = new Date(minMiliseconds);
 
-          myChart.config.options.parsing.xAxisKey = 'ocr_time'
-          myChart.config.options.parsing.yAxisKey = 'page_num'
-          myChart.config.data.datasets[0].data = myChart.config.data.datasets[0].data[value].sub_details
-          myChart.config.options.scales = {
-                                              y: {
-                                                  beginAtZero: true
-                                                  
-                                              },
-                                              x: {
-                                                  // type: 'logarithmic'
-                                              }
-                                              };
+          myChart.config.options.scales.x.min = minDate
+          myChart.config.options.scales.x.max = maxDate
 
-
-
-          myChart.config.options.plugins.tooltip = {
-          displayColors: false,
-          yAlign: 'bottom',
-          callbacks: {
-          label: (ctx) => {
-              return '';
-          },
-          title: (ctx) => {
-              return [`${ctx[0].raw.ocr_time}s`];
-          }
-          }
-          }
           const subbox = document.querySelector('.subbox');
-          console.log(myChart.config.data.datasets[0].data)
           if(myChart.config.data.datasets[0].data.length > 1) {
 
-              const newHeight = 300 + ((myChart.config.data.datasets[0].data.length - 7) * 10);
+              const newHeight = 300 + ((myChart.config.data.datasets[0].data.length - 7) * 20);
               subbox.style.height = `${newHeight}px`;
               console.log(newHeight)
               }
-          myChart.update()
+          myChart.update();
+            }
 
           }
       else if (myChart.config.data.datasets[0].data[value].detail) {

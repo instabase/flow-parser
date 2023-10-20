@@ -30,8 +30,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
@@ -39,7 +37,7 @@ setup(
     description=description,
     entry_points={
         'console_scripts': [
-            'ibflowparser=flowparser.parser:main',
+            'ibflowparser=flowparser.utils.cli:main',
         ],
     },
     install_requires=requirements,
@@ -53,6 +51,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/instabase/flow-parser',
-    version='0.0.4',
+    version='0.0.5',
     zip_safe=False,
 )

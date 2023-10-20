@@ -2,4 +2,4 @@ include HISTORY.md
 include LICENSE.md
 include README.md
 
-include flowparser/templates/*
+include flowparser/utils/templates/*
