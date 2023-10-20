@@ -399,14 +399,14 @@ class LogParser(object):
                     task_id_dict["refiner_name"] = refiner_name[0]
 
                 # Map Stage to Step ID
-                if step_name in stage_to_type:
-                    step.setdefault("type", stage_to_type[step_name])
-                    if stage_to_type[step_name] == "refiner" or stage_to_type[step_name] == "apply_refiner":
+                if log["step"] in stage_to_type:
+                    step.setdefault("type", stage_to_type[log["step"]])
+                    if stage_to_type[log["step"]] == "refiner" or stage_to_type[log["step"]] == "apply_refiner":
                         if task_id in span_interference_dict:
                             step['model-service'] = span_interference_dict[task_id]
 
                 elif "-map-" in task_id:
-                    step.setdefault("type", step_name)
+                    step.setdefault("type", log["step"])
                 else:
                     step.setdefault("type", "unknown")
 
@@ -719,7 +719,11 @@ class LogParser(object):
                     new_pages = []
                     for file_name, pages_details in y["pages"].items():
                         for page_num, page_details in pages_details["pages"].items():
-                            ocr_time.append(float(page_details["ocr_time"]))
+                            if 'ocr_time' in page_details:
+                                ocr_time_indv = float(page_details["ocr_time"])
+                                ocr_time.append(float(page_details["ocr_time"]))
+                            else:
+                                ocr_time_indv = ''
 
                             if 'convert_time' in page_details:
                                 convert_time = float(page_details['convert_time'].replace("s", ""))
@@ -740,27 +744,27 @@ class LogParser(object):
                                     "filename": k,
                                     "step_id": x,
                                     "page_num": page_num,
-                                    "ocr_time": float(page_details["ocr_time"]),
+                                    "ocr_time": ocr_time_indv,
                                     "convert": convert_time,
                                     "rotation": rotation_time,
                                     "ocr_start_time" : ocr_start_time
                                 }
                             )
+                            if ocr_time_indv:
+                                ocr_detail_chart.append(
+                                    {
+                                        "y" : ocr_time_indv,
+                                        "x": ocr_start_time
+                                    }
+                                )
 
-                            ocr_detail_chart.append(
-                                {
-                                    "y" : page_details["ocr_time"],
-                                    "x": ocr_start_time
-                                }
-                            )
-
-                            new_pages.append(
-                                {
-                                    "y": "pg " + page_num,
-                                    "elapsed_time": page_details["ocr_time"],
-                                    "x": [ocr_start_time,ocr_end_time],
-                                }
-                            )
+                                new_pages.append(
+                                    {
+                                        "y": "pg " + page_num,
+                                        "elapsed_time": ocr_time_indv,
+                                        "x": [ocr_start_time,ocr_end_time],
+                                    }
+                                )
                         break
                     sub_details = new_pages
 

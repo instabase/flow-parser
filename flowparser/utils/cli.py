@@ -55,14 +55,14 @@ def main():
         # job_details_agg = log_parser.aggergate_details(job_details)
 
         aggergate_job_details.append(job_details)
-
+        if 'json' in args.output_type:
+            render = Render(job_details, outputDir)
+            render.json()
         if 'html' in args.output_type:
             render = Render(job_details, outputDir)
             render.html()
 
-        if 'json' in args.output_type:
-            render = Render(job_details, outputDir)
-            render.json()
+
 
         if 'excel' in args.output_type:
             render = Render(job_details, outputDir)
