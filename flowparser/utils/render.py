@@ -65,7 +65,6 @@ class Render(object):
         p = Path(__file__).parent.parent
         
         template_path = f'{p}/utils/templates'
-        print(template_path)
         environment = Environment(loader=FileSystemLoader(template_path))
         template = environment.get_template("template.html")
         html_file = template.render(job=job)

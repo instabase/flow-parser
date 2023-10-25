@@ -29,15 +29,16 @@ from datetime import datetime, timedelta
 from operator import itemgetter
 import numpy
 import sys
-from ..exceptions import *
+from flowparser.exceptions import *
 
-def progressBar(count_value, total, suffix=''):
+def progressBar(logger, count_value, total, suffix=''):
     bar_length = 100
-    filled_up_Length = int(round(bar_length* count_value / float(total)))
-    percentage = round(100.0 * count_value/float(total),1)
+    filled_up_Length = int(round(bar_length* (count_value+1) / float(total)))
+    percentage = round(100.0 * (count_value+1)/float(total),1)
+    
     bar = '=' * filled_up_Length + '-' * (bar_length - filled_up_Length)
-    sys.stdout.write('[%s] %s%s ...%s\r' %(bar, percentage, '%', suffix))
-    sys.stdout.flush()
+    if logger and percentage % 10 == 0:
+        logger.debug('[%s] %s%s ...%s\r' %(bar, percentage, '%', suffix))
 
 
 class LogParser(object):
@@ -59,14 +60,15 @@ class LogParser(object):
                 if os.path.isfile(t) :
                     files_to_parse.append(t)
         results = []
-        #self.logger.info(f"Parsing the following documents {files_to_parse}")
+        if self.logger:
+            self.logger.info(f"Parsing the following documents {files_to_parse}")
         for file in files_to_parse:
             log_file = json.load(open(file))
 
             results.append(self.parse_from_json(log_file))
         return results
 
-    def parse_from_json(self, logs):
+    def parse_from_json(self, logs, filename = None):
         log_mapping = {
             'json' : {
                 'job_id' : 'jobId',
@@ -98,8 +100,8 @@ class LogParser(object):
                 #15/09/2023, 18:55:33
                 format = '%d/%m/%Y, %H:%M:%S'
                 datetime.strptime(logs[0]["ts"], format)
-
-        #self.logger.info(f'Using the following timestamp format {format}')
+        if self.logger:
+            self.logger.info(f'Using the following timestamp format {format} for {filename}')
 
         # Check log timestamp order in case order was modified before saving from UI
         if datetime.strptime(logs[0]["ts"], format) > datetime.strptime(logs[-1]["ts"], format):
@@ -128,10 +130,12 @@ class LogParser(object):
         stage_to_type = {}
         reduce_stage_to_filename = {}
         # Inital loop of logs to map filenames to steps and filenames to stages/task ids
+        if self.logger:
+            self.logger.info(f'Mapping stages and steps to filenames for {job_id}')
         for log_idx, log in enumerate(logs):
             log_details = log["log"]
 
-            progressBar(log_idx, len(logs), f'Mapping Stages and Steps to Filenames for {job_id}')
+            progressBar(self.logger, log_idx, len(logs), f'Mapping Stages and Steps to Filenames for {job_id}')
             # Kick out any log entry that is over 5000 char. This can cause regex to take a long time if long log elements present
             if len(log_details) > 5000:
                 continue
@@ -242,12 +246,16 @@ class LogParser(object):
 
         span_interference_dict = {}
         file_retry_dict = {}
+        if self.logger:
+            self.logger.info(f'Parsing log entries for {job_id}')
         for log_idx, log in enumerate(logs):
             log_details = log["log"]
             
-            progressBar(log_idx, len(logs), f'Parsing Log Entries for {job_id}')
+            progressBar(self.logger, log_idx, len(logs), f'Parsing Log Entries for {job_id}')
             # Kick out any log entry that is over 5000 char. This can cause regex to take a long time if long log elements present
             if len(log_details) > 5000:
+                if self.logger:
+                    self.logger.warning('Log entry over 5000 chars. Skipping log entry')
                 continue
 
             ts = datetime.strptime(log["ts"], format)
@@ -653,10 +661,14 @@ class LogParser(object):
                     else:
                         previous_time.append(stepValues['end_time'])
         else:
-            raise TaskMissingError(job_details['jobid'])
+            if self.logger:
+                
+                err = f'Task details missing for {job_id}'
+                self.logger.error(err)
+                return job_details, err
         # Clean up any Datatime obj in dict
         job_aggergation = self.aggergate_details(job_details)
-        return json.loads(json.dumps(job_aggergation, default=str))
+        return json.loads(json.dumps(job_aggergation, default=str)), None
 
 
     def aggergate_details(self, job_details):
