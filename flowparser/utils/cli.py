@@ -48,6 +48,7 @@ def main():
     filename_to_parse = []
     if os.path.isfile(args.input):
         files_to_parse.append(args.input)
+        filename_to_parse.append(str(args.input).split('/')[-1])
     else:
         for filename in os.listdir(args.input):
             t = os.path.join(args.input, filename)
