@@ -64,6 +64,9 @@ def main():
         if file.endswith("json"):
             try:
                 log_detail = json.load(open(file))
+                if logger and len(log_detail) == 0:
+                    logger.error(f'No log entries present for {filename}')
+                    continue
             except:
                 if logger:
                     logger.error(f'Cannot parse json file for {filename}')
