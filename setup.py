@@ -13,7 +13,7 @@ with open('HISTORY.md') as history_file:
 
 description = "A simple utility which will parse Instabase Flow Logs"
 
-requirements = ['Jinja2==3.1.2',
+requirements = ['Jinja2==3.1.3',
                 'numpy==1.25.2',
                 'openpyxl==3.1.2',
                 'pandas==2.1.0']
